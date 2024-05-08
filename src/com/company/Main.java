@@ -78,9 +78,9 @@ public class Main {
             if (R <= minRadius){
                 place += CircleSmal(doubles, R, square);
             }else if(R < maxRadius){
-                place += CircleMedium();
+                place += CircleMedium(doubles, R, square);
             }else {
-                place += CircleBig();
+                place += CircleBig(doubles, R, square);
             }
         }
 
@@ -116,7 +116,10 @@ public class Main {
         writer.close();
     }
 
-    // расчёты мальних кругов
+    // --------------------------- расчёт кругов --------------------------
+
+    // ------------- расчёты мальних кругов
+
     public static double CircleSmal(Double[] koordinateXY, double R, double square){
         double x = koordinateXY[0];
         double y = koordinateXY[1];
@@ -170,13 +173,205 @@ public class Main {
         return place;
     }
 
-    // расчёты средних кругов
-    public static double CircleMedium(){
-        return 1.0;
+    // ------------- расчёты средних кругов
+
+    public static double CircleMedium(Double[] koordinateXY, double R, double square){
+        double x = koordinateXY[0];
+        double y = koordinateXY[1];
+        x = Polarity(x, square);
+        y = Polarity(y, square);
+
+        double dx = Math.sqrt((x + R) * (x + R) + y * y);
+        double dy = Math.sqrt(x * x + (y + R) * (y + R));
+        double d0 = Math.sqrt(x * x + y * y);
+        double dmax = Math.sqrt((x + R) * (x + R)  + (y + R) * (y + R));
+
+        double placeX = PlaceTriangle(x, R);
+        double placeY = PlaceTriangle(y, R);
+        double angelA = AngelTriangle(x, R);
+        double angelB = AngelTriangle(y, R);
+
+        double place = 0.0;
+
+        if (x < R/2){
+            if (y < R/2){
+                //2
+                double placeSquare = PlaceSquare(x, y);
+                double angelSector = 360 - angelA - angelB - 90;
+                double placeSector = PlaceSector(angelSector, R);
+                place += placeSector + placeX + placeY + placeSquare;
+            }else {
+                if (d0 < R){
+                    if (dy < R){
+                        //2
+                        double placeSquare = PlaceSquare(x, y);
+                        double angelSector = 360 - angelA - angelB - 90;
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + placeX + placeY + placeSquare;
+                    }else {
+                        //1
+                        double placeSquare = PlaceSquare(x, y);
+                        double angelSector = 360 - angelA - angelB - 180;
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + placeX + placeY + placeSquare;
+                    }
+                }else {
+                    if (dy < R){
+                        //7
+                        double angelSector = 360 - (angelA * 2) - (angelB * 2);
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + (placeX * 2) + (placeY * 2);
+                    }else {
+                        //8
+                        double angelSector = 360 - (angelA * 2) - (angelB * 2) * 2;
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + (placeX * 2) + (placeY * 2) * 2;
+                    }
+                }
+            }
+        }else {
+            if (y < R/2){
+                if (d0 < R){
+                    if (dx < R){
+                        //2
+                        double placeSquare = PlaceSquare(x, y);
+                        double angelSector = 360 - angelA - angelB - 90;
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + placeX + placeY + placeSquare;
+                    }else {
+                        //1
+                        double placeSquare = PlaceSquare(x, y);
+                        double angelSector = 360 - angelA - angelB - 180;
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + placeX + placeY + placeSquare;
+                    }
+                }else {
+                    if (dx < R){
+                        //7
+                        double angelSector = 360 - (angelA * 2) - (angelB * 2);
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + (placeX * 2) + (placeY * 2);
+                    }else {
+                        //8
+                        double angelSector = 360 - (angelA * 2) * 2 - (angelB * 2);
+                        double placeSector = PlaceSector(angelSector, R);
+                        place += placeSector + (placeX * 2) * 2 + (placeY * 2);
+                    }
+                }
+            }else {
+                // x > R/2   &&   y > R/2
+                if (d0 < R){
+                    if (dy < R){
+                        if (dx < R){
+                            if (dmax < R){
+                                //10
+                                double angelSector = 360 - (angelA * 2) - (angelB * 2) - 270;
+                                double placeSector = PlaceSector(angelSector, R);
+                                place += placeSector + (placeX * 2) + (placeY * 2);
+                            }else {
+                                //11
+                                place += 1.0;
+                            }
+                        }else {
+                            if ((x + R) < square){
+                                //1
+                                double placeSquare = PlaceSquare(x, y);
+                                double angelSector = 360 - angelA - angelB - 180;
+                                double placeSector = PlaceSector(angelSector, R);
+                                place += placeSector + placeX + placeY + placeSquare;
+                            }else {
+                                //6
+                                double placeSquare = PlaceSquare(x, y);
+                                double angelZ = AngelTriangle(square/2 - x, R);
+                                double angelSector = 360 - angelA - angelB - (angelZ * 2)- 180;
+                                double placeSector = PlaceSector(angelSector, R);
+                                place += placeSector + placeX + placeY + placeSquare;
+                            }
+                        }
+                    }else {
+                        if (dx < R){
+                            if ((y + R) < square){
+                                //1
+                                double placeSquare = PlaceSquare(x, y);
+                                double angelSector = 360 - angelA - angelB - 180;
+                                double placeSector = PlaceSector(angelSector, R);
+                                place += placeSector + placeX + placeY + placeSquare;
+                            }else {
+                                //6
+                                double placeSquare = PlaceSquare(x, y);
+                                double angelZ = AngelTriangle(square/2 - y, R);
+                                double angelSector = 360 - angelA - angelB - (angelZ * 2)- 180;
+                                double placeSector = PlaceSector(angelSector, R);
+                                place += placeSector + placeX + placeY + placeSquare;
+                            }
+                        }else {
+                            if ((x + R) < square){
+                                if ((y + R) < square){
+                                    //2
+                                    double placeSquare = PlaceSquare(x, y);
+                                    double angelSector = 360 - angelA - angelB - 90;
+                                    double placeSector = PlaceSector(angelSector, R);
+                                    place += placeSector + placeX + placeY + placeSquare;
+                                }else {
+                                    //9
+                                    double angelSector = 360 - (angelA * 4) - (angelB * 2);
+                                    double placeSector = PlaceSector(angelSector, R);
+                                    place += placeSector + (placeX * 4) + (placeY * 2);
+                                }
+                            }else {
+                                if ((y + R) < square){
+                                    //9
+                                    double angelSector = 360 - (angelA * 2) - (angelB * 4);
+                                    double placeSector = PlaceSector(angelSector, R);
+                                    place += placeSector + (placeX * 2) + (placeY * 4);
+                                }else {
+                                    //4
+                                    double placeSquare = PlaceSquare(x, y);
+                                    double angelX = AngelTriangle(square/2 - y, R);
+                                    double angelY = AngelTriangle(square/2 - y, R);
+                                    double angelSector = 360 - angelA - angelB - (angelX * 2)- (angelY * 2);
+                                    double placeSector = PlaceSector(angelSector, R);
+                                    place += placeSector + placeX + placeY + placeSquare;
+                                }
+                            }
+                        }
+                    }
+                }else {
+                    if ((x + R) < square){
+                        if ((y + R) < square){
+                            //7
+                            double angelSector = 360 - (angelA * 2) - (angelB * 2);
+                            double placeSector = PlaceSector(angelSector, R);
+                            place += placeSector + (placeX * 2) + (placeY * 2);
+                        }else {
+                            //9
+                            double angelSector = 360 - (angelA * 4) - (angelB * 2);
+                            double placeSector = PlaceSector(angelSector, R);
+                            place += placeSector + (placeX * 4) + (placeY * 2);
+                        }
+                    }else {
+                        if ((y + R) < square){
+                            //9
+                            double angelSector = 360 - (angelA * 2) - (angelB * 4);
+                            double placeSector = PlaceSector(angelSector, R);
+                            place += placeSector + (placeX * 2) + (placeY * 4);
+                        }else {
+                            //5
+                            double angelSector = 360 - (angelA * 4) - (angelB * 4);
+                            double placeSector = PlaceSector(angelSector, R);
+                            place += placeSector + (placeX * 4) + (placeY * 4);
+                        }
+                    }
+                }
+            }
+        }
+
+        return place;
     }
 
-    // расчёты больших кругов
-    public static double CircleBig(){
+    // ------------- расчёты больших кругов
+
+    public static double CircleBig(Double[] koordinateXY, double R, double square){
         return 1.0;
     }
 

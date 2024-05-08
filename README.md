@@ -125,17 +125,90 @@ ___
 
 Для решения мы расмотрим все варианты, возможного закрашивания квадрата (где маленький радиус, средний и большой):
 
-![](варианты.png)
+![](var.png)
 
 А так же используем формулы Пифагора, для треугольников и нахождения площади внутри круга:
 
 ![](2.png)
 
 ~~~Java
-
+        // получаем площадь
+        double place = 0;
+        for (Double[] doubles: koordinateXY){
+            if (R <= minRadius){
+                place += CircleSmal(doubles, R, square);
+            }else if(R < maxRadius){
+                place += CircleMedium();
+            }else {
+                place += CircleBig();
+            }
+        }
 ~~~
 
-Не проходит по времени и формату вывода (￢_￢)
+А дальше расчитываем в зависимости от размера круга
+
+~~~Java
+    // --------------------------- расчёт кругов --------------------------
+
+    // ------------- расчёты мальних кругов
+
+    public static double CircleSmal(Double[] koordinateXY, double R, double square){
+        double x = koordinateXY[0];
+        double y = koordinateXY[1];
+        x = Polarity(x, square);
+        y = Polarity(y, square);
+
+        double place = 0.0;
+
+        if (x<R){
+            if(y<R){
+                double placeX = PlaceTriangle(x, R);
+                double placeY = PlaceTriangle(y, R);
+                double angelA = AngelTriangle(x, R);
+                double angelB = AngelTriangle(y, R);
+
+                // доходит до угла или нет?
+                if(x<(R/2)){
+                    //2
+                    double placeSquare = PlaceSquare(x, y);
+                    double angelSector = 360 - angelA - angelB - 90;
+                    double placeSector = PlaceSector(angelSector, R);
+                    place += placeSector + placeX + placeY + placeSquare;
+                }else {
+                    //4
+                    double angelSector = 360 - (angelA * 2) - (angelB * 2);
+                    double placeSector = PlaceSector(angelSector, R);
+                    place += placeSector + (placeX * 2) + (placeY * 2);
+                }
+            }else {
+                //1 боковая грань
+                double placeX = PlaceTriangle(x, R);
+                double angelA = AngelTriangle(x, R);
+                double angelSector = 360 - (angelA * 2);
+                double placeSector = PlaceSector(angelSector, R);
+                place += placeSector + (placeX * 2);
+            }
+        }else {
+            if (y >= R){
+                //5 полность в квадрате
+                return R * R * Math.PI;
+            }else {
+                //3 боковая грань
+                double placeY = PlaceTriangle(y, R);
+                double angelA = AngelTriangle(y, R);
+                double angelSector = 360 - (angelA * 2);
+                double placeSector = PlaceSector(angelSector, R);
+                place += placeSector + (placeY * 2);
+            }
+        }
+
+        return place;
+    }
+~~~
+
+Не проходит по времени вывода (￢_￢)
+
+И возможно, я не прав по решению  (×﹏×)
 
 Итог: 
 --------
